@@ -90,7 +90,7 @@ include("header.php");
           </div>
           <hr>
           <h5 class="mb-3">Checkout Details</h5>
-          <form action="purchase.php" method="POST" id="checkout-form">
+          <form action="purchase.php" method="POST" id="checkout-form" onsubmit="return handlePaymentMethod()">
             <div class="form-group">
               <label>Username:</label>
               <input type="text" name="full_name" class="form-control" required>
@@ -103,14 +103,20 @@ include("header.php");
               <label>Address</label>
               <input type="text" name="address" class="form-control" required>
             </div>
-            <div class="form-check">
+            <div class="form-check mb-2">
               <input class="form-check-input" type="radio" name="pay_mode" value="COD" id="flexRadioDefault2" checked>
               <label class="form-check-label" for="flexRadioDefault2">
-                Cash On Dilevery
+                <i class="fas fa-money-bill-wave"></i> Cash On Delivery
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="radio" name="pay_mode" value="Khalti" id="khaltiPayment">
+              <label class="form-check-label" for="khaltiPayment">
+                <img src="images/khalti.png" alt="Khalti" style="height: 20px; margin-right: 5px;"> Pay with Khalti
               </label>
             </div>
             <br>
-            <button class="btn btn-primary btn-block btn-lg" name="purchase">
+            <button class="btn btn-primary btn-block btn-lg" name="purchase" id="checkoutBtn">
               <i class="fas fa-check"></i> Complete Checkout
             </button>
           </form>
@@ -190,6 +196,18 @@ include("header.php");
 
 
    subTotal();
+
+  // Handle payment method selection - redirect to checkout.php for Khalti
+  function handlePaymentMethod() {
+    const khaltiRadio = document.getElementById('khaltiPayment');
+    if (khaltiRadio.checked) {
+      // Change form action to checkout.php for Khalti payment
+      document.getElementById('checkout-form').action = 'checkout.php';
+      return true;
+    }
+    // For COD, submit to purchase.php (default action)
+    return true;
+  }
 
 </script>
 
