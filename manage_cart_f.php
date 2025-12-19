@@ -4,26 +4,29 @@ session_start();
 
 if ($_SERVER["REQUEST_METHOD"]=="POST") {
     if (isset($_POST['Add_To_Cart'])) {
+        // Get redirect URL from form or use referer
+        $redirect_url = isset($_POST['redirect_url']) ? $_POST['redirect_url'] : (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.html');
+        
         if (isset($_SESSION['cart'])) {
             $myitems=array_column($_SESSION['cart'], 'Item_Name');
             if (in_array($_POST['Item_Name'], $myitems)) {
                 echo"<script>
           alert('Item already added');
-          window.location.href='female.php';
+          window.location.href='$redirect_url';
         </script>";
             } else {
                 $count=count($_SESSION['cart']);
                 $_SESSION['cart'][$count]=array('Item_Name'=>$_POST['Item_Name'],'Price'=>$_POST['Price'],'Quantity'=>1);
                 echo"<script>
           alert('Item added');
-          window.location.href='female.php';
+          window.location.href='$redirect_url';
         </script>";
             }
         } else {
             $_SESSION['cart'][0]=array('Item_Name'=>$_POST['Item_Name'],'Price'=>$_POST['Price'],'Quantity'=>1);
             echo"<script>
         alert('Item added');
-        window.location.href='female.php';
+        window.location.href='$redirect_url';
       </script>";
         }
     }

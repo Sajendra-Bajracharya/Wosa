@@ -35,6 +35,7 @@
               <h4>Rs.2000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Cherry hoodiet"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="2000">
             </div>
           </form>
@@ -51,6 +52,7 @@
               <h4>Rs.1000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Cherry sweatshirt"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1000">
             </div>
           </form>
@@ -67,6 +69,7 @@
               <h4>Rs.1400</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="GG knit dress"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1400">
             </div>
           </form>
@@ -83,6 +86,7 @@
               <h4>Rs.2300</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Cardigan"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="2300">
             </div>
           </form>
@@ -99,6 +103,7 @@
               <h4>Rs.3500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Puffer jacket"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="3500">
             </div>
           </form>
@@ -115,6 +120,7 @@
               <h4>Rs.1500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Zipped track top"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1500">
             </div>
           </form>
@@ -131,6 +137,7 @@
               <h4>Rs.2000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Cashmere wool jumper"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="2000">
             </div>
           </form>
@@ -147,6 +154,7 @@
               <h4>Rs.1800</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="V neck cardigan"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1800">
             </div>
           </form>
@@ -163,6 +171,7 @@
               <h4>Rs.1000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="High waisted skirt"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1000">
             </div>
           </form>
@@ -179,6 +188,7 @@
               <h4>Rs.1500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Front button skirt"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1500">
             </div>
           </form>
@@ -195,6 +205,7 @@
               <h4>Rs.1500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Denim skirt"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1500">
             </div>
           </form>
@@ -211,6 +222,7 @@
               <h4>Rs.2000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Track pants"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="2000">
             </div>
           </form>
@@ -227,6 +239,7 @@
               <h4>Rs.2000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Ribcage jeans"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1700">
             </div>
           </form>
@@ -243,6 +256,7 @@
               <h4>Rs.2000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Straight leg track pants"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="2000">
             </div>
           </form>
@@ -259,6 +273,7 @@
               <h4>Rs.1800</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Yellow track pants"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="1800">
             </div>
           </form>
@@ -275,6 +290,7 @@
               <h4>Rs.2500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Wide-leg denim jeans"/>
+              <input type="hidden" name="redirect_url" value="female.php">
               <input type="hidden" name="Price" value="2500">
             </div>
           </form>

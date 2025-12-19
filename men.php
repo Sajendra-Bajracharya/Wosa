@@ -44,6 +44,7 @@
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Bomber jacket"/>
               <input type="hidden" name="Price" value="2000">
+              <input type="hidden" name="redirect_url" value="men.php">
             </div>
           </form>
       </div>
@@ -65,6 +66,7 @@
               <h4>Rs.3000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Cotton jacket"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="3000">
             </div>
           </form>
@@ -87,6 +89,7 @@
               <h4>Rs.1000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Sweat Shirt"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1000">
             </div>
           </form>
@@ -109,6 +112,7 @@
               <h4>Rs.2500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Denim jacke"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="2500">
             </div>
           </form>
@@ -131,6 +135,7 @@
               <h4>Rs.1500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Camo trousers"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1500">
             </div>
           </form>
@@ -153,6 +158,7 @@
               <h4>Rs.1200</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Slim fit chinos"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1200">
             </div>
           </form>
@@ -175,6 +181,7 @@
               <h4>Rs.1500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Track trouser"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1500">
             </div>
           </form>
@@ -197,6 +204,7 @@
               <h4>Rs.1800</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Alex Fit Trousers"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1800">
             </div>
           </form>
@@ -219,6 +227,7 @@
               <h4>Rs.2500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Sport jacket"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="2500">
             </div>
           </form>
@@ -241,6 +250,7 @@
               <h4>Rs.3000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Barrowland jacket"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="3000">
             </div>
           </form>
@@ -263,6 +273,7 @@
               <h4>Rs.3500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Padded jacket"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="3500">
             </div>
           </form>
@@ -285,6 +296,7 @@
               <h4>Rs.4000</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Chest patch jacket"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="4000">
             </div>
           </form>
@@ -307,6 +319,7 @@
               <h4>Rs.1900</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Straight-leg jeans"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1900">
             </div>
           </form>
@@ -329,6 +342,7 @@
               <h4>Rs.1500</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Straight-leg trousers"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1500">
             </div>
           </form>
@@ -351,6 +365,7 @@
               <h4>Rs.1800</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Alex Fit Trousers"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1800">
             </div>
           </form>
@@ -373,6 +388,7 @@
               <h4>Rs.1600</h4>
               <button type="submit" name="Add_To_Cart" class="add-to-cart">Add To Cart</button>
               <input type="hidden" name="Item_Name" value="Distressed-effect jeans"/>
+              <input type="hidden" name="redirect_url" value="men.php">
               <input type="hidden" name="Price" value="1600">
             </div>
           </form>

@@ -10,6 +10,10 @@ include("header.php");
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+  <script 
+      src="https://kit.fontawesome.com/144a91ca19.js"
+      crossorigin="anonymous"
+  ></script>
   <title>Cart</title>
 </head>
 <body>
@@ -79,7 +83,14 @@ include("header.php");
             if(isset($_SESSION['cart']) && count($_SESSION['cart'])>0)
             {
           ?>
-          <form action="purchase.php" method="POST">
+          <div class="mb-3">
+            <a href="#checkout-form" class="btn btn-success btn-block btn-lg" style="text-decoration: none; color: white;">
+              <i class="fas fa-shopping-cart"></i> Proceed to Checkout
+            </a>
+          </div>
+          <hr>
+          <h5 class="mb-3">Checkout Details</h5>
+          <form action="purchase.php" method="POST" id="checkout-form">
             <div class="form-group">
               <label>Username:</label>
               <input type="text" name="full_name" class="form-control" required>
@@ -99,7 +110,9 @@ include("header.php");
               </label>
             </div>
             <br>
-            <button class="btn btn-primary btn-block" name="purchase">Make Purchase</button>
+            <button class="btn btn-primary btn-block btn-lg" name="purchase">
+              <i class="fas fa-check"></i> Complete Checkout
+            </button>
           </form>
           <?php
             }
