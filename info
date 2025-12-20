@@ -1,0 +1,187 @@
+
+
+This means your Khalti API credentials are wrong or missing. Here's how to fix:
+
+### Step 1: Get Khalti Credentials
+
+1. **Go to Khalti Merchant Portal:**
+   - Visit: https://khalti.com
+   - Click "Merchant Login" or "Sign Up"
+
+2. **Create Account (if you don't have one):**
+   - Fill in your business details
+   - Verify your email
+   - Complete the registration
+
+3. **Get Your API Keys:**
+   - Log into Khalti Merchant Dashboard
+   - Go to: **Settings → API Keys**
+   - You'll see:
+     - Test Public Key (starts with `test_public_key_...`)
+     - Test Secret Key (starts with `test_secret_key_...`)
+     - Live Public Key
+     - Live Secret Key
+
+4. **Copy Your TEST Keys** (for now, use test keys)
+
+### Step 2: Update checkout.php
+
+1. **Open your `checkout.php` file**
+
+2. **Find these lines near the top:**
+   ```php
+   $publicKey = "YOUR_PUBLIC_KEY_HERE";
+   $secretKey = "YOUR_SECRET_KEY_HERE";
+   ```
+
+3. **Replace with YOUR actual Khalti keys:**
+   ```php
+   $publicKey = "test_public_key_abc123xyz..."; // Your actual test public key
+   $secretKey = "test_secret_key_abc123xyz..."; // Your actual test secret key
+   ```
+
+4. **Save the file**
+
+### Step 3: Update verify.php
+
+1. **Open your `verify.php` file**
+
+2. **Find this line:**
+   ```php
+   $secretKey = "test_secret_key_f59e8b7d18b4499ca40f68195a846e9b";
+   ```
+
+3. **Replace with the SAME secret key you used in checkout.php:**
+   ```php
+   $secretKey = "test_secret_key_abc123xyz..."; // Same as checkout.php
+   ```
+
+4. **Save the file**
+
+### Step 4: Test Khalti Payment
+
+For testing in Khalti's sandbox:
+
+**Test Amounts (ONLY these work in sandbox):**
+- Rs. 10 (1000 paisa)
+- Rs. 50 (5000 paisa)
+- Rs. 100 (10000 paisa)
+- Rs. 500 (50000 paisa)
+
+**Test Credentials:**
+- Test Mobile: `9800000000` or `9800000001`
+- Test OTP: `987654`
+- Test Card: `9876543210001234`
+
+**Testing Steps:**
+1. Add items to cart (any amount is fine, system will round)
+2. Proceed to checkout
+3. Fill in delivery details
+4. Click "Pay with Khalti"
+5. Use test mobile number
+6. Enter test OTP
+7. Complete payment
+
+✅ **Expected Result:** Payment success page with order details
+
+---
+
+## Common Mistakes to Avoid ⚠️
+
+### ❌ Don't Do This:
+```php
+// Wrong - keeping placeholder text
+$publicKey = "YOUR_PUBLIC_KEY_HERE";
+$secretKey = "YOUR_SECRET_KEY_HERE";
+```
+
+### ✅ Do This:
+```php
+// Correct - your actual Khalti keys
+$publicKey = "test_public_key_dc74e0fd57cb46cd93832aee0a390234";
+$secretKey = "test_secret_key_f59e8b7d18b4499ca40f68195a846e9b";
+```
+
+### ❌ Don't Mix Test and Live Keys:
+```php
+// Wrong - mixing test and live
+$publicKey = "live_public_key_...";  // Live key
+$secretKey = "test_secret_key_...";  // Test key - MISMATCH!
+```
+
+### ✅ Use Matching Key Types:
+```php
+// Correct - both are test keys
+$publicKey = "test_public_key_...";
+$secretKey = "test_secret_key_...";
+```
+
+---
+
+## Verification Checklist ✓
+
+Before testing, make sure:
+
+- [ ] You have a Khalti merchant account
+- [ ] You've copied your TEST keys (not live keys)
+- [ ] Both checkout.php and verify.php have the SAME secret key
+- [ ] The keys are inside quotes: `"test_secret_key_..."`
+- [ ] You've saved both files after editing
+- [ ] Your cart amount will be rounded to Rs. 10, 50, 100, or 500 for testing
+
+---
+
+## Still Having Issues?
+
+### Check These:
+
+1. **If still getting 401 error:**
+   - Make sure keys don't have extra spaces
+   - Verify you copied the complete key
+   - Check if keys are from the correct environment (test vs live)
+   - Try generating new test keys from Khalti dashboard
+
+2. **If admin pages still show 404:**
+   - Make sure files are in the SAME folder as `index.php`
+   - Check file names are exactly: `admin_products.php`, `admin_orders.php`, `admin_reports.php`
+   - Clear your browser cache
+   - Try accessing directly: `http://localhost/wosa/admin_products.php`
+
+3. **If products table doesn't exist:**
+   - Run the SQL from "Product Database Schema" in phpMyAdmin
+   - Make sure you're in the correct database (`testing`)
+   - Check if the SQL ran without errors
+
+---
+
+## Quick Test Commands
+
+### Test if files exist:
+Open these URLs directly in your browser:
+```
+http://localhost/wosa/admin_products.php
+http://localhost/wosa/admin_orders.php
+http://localhost/wosa/admin_reports.php
+```
+
+### Test database:
+In phpMyAdmin, run:
+```sql
+-- Check if products table exists
+SHOW TABLES LIKE 'products';
+
+-- Check if order_status column exists
+DESCRIBE order_manager;
+```
+
+---
+
+## Need More Help?
+
+1. **Khalti Documentation:** https://docs.khalti.com/
+2. **Khalti Support:** support@khalti.com
+3. **Check Khalti Dashboard:** https://khalti.com/merchant/
+
+---
+
+Remember: Always use TEST credentials for testing, LIVE credentials only when going to production! 🎯

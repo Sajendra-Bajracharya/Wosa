@@ -20,9 +20,9 @@ $total_orders_query = "SELECT COUNT(*) as count FROM order_manager";
 $total_orders_result = mysqli_query($db, $total_orders_query);
 $total_orders = mysqli_fetch_assoc($total_orders_result)['count'];
 
-$total_revenue_query = "SELECT SUM(o.Price * o.Quantity) as revenue FROM user_orders o";
-$total_revenue_result = mysqli_query($db, $total_revenue_query);
-$total_revenue = mysqli_fetch_assoc($total_revenue_result)['revenue'] ?? 0;
+$total_products_query = "SELECT COUNT(*) as count FROM products";
+$total_products_result = mysqli_query($db, $total_products_query);
+$total_products = mysqli_fetch_assoc($total_products_result)['count'];
 
 // Recent users
 $recent_users_query = "SELECT * FROM user_manager ORDER BY created_at DESC LIMIT 5";
@@ -177,7 +177,7 @@ $recent_orders = mysqli_query($db, $recent_orders_query);
             background: #2ecc71;
         }
         
-        .stat-card.revenue::before {
+        .stat-card.products::before {
             background: #f39c12;
         }
         
@@ -202,7 +202,7 @@ $recent_orders = mysqli_query($db, $recent_orders_query);
             color: #2ecc71;
         }
         
-        .revenue .stat-icon {
+        .products .stat-icon {
             background: #fef5e7;
             color: #f39c12;
         }
@@ -353,12 +353,12 @@ $recent_orders = mysqli_query($db, $recent_orders_query);
                     <div class="stat-label">Total Orders</div>
                 </div>
 
-                <div class="stat-card revenue">
+                <div class="stat-card products">
                     <div class="stat-icon">
-                        <i class="fas fa-dollar-sign"></i>
+                        <i class="fas fa-box"></i>
                     </div>
-                    <div class="stat-value">Rs. <?php echo number_format($total_revenue); ?></div>
-                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value"><?php echo $total_products; ?></div>
+                    <div class="stat-label">Total Products</div>
                 </div>
             </div>
 

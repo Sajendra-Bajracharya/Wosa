@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-
 // Khalti credentials
 $publicKey = "3b0b476539d44bd3ab515bd4709049ba";
 $secretKey = "68cc93e50fb540eb89ba1dfc27531ff0";
@@ -39,48 +38,64 @@ foreach ($_SESSION['cart'] as $item) {
     $orderItems[] = $item['Item_Name'];
 }
 
-// Convert to paisa
+// Convert to paisa (Khalti works in paisa, 1 Rs = 100 paisa)
 $amountInPaisa = (int)($totalAmount * 100);
 
-// --- SANDBOX FIX: Khalti only allows specific test amounts ---
-$sandboxAmounts = [1000, 5000, 10000, 50000]; // Rs. 10, 50, 100, 500
-$closestAmount = 1000; // default
-foreach ($sandboxAmounts as $amt) {
-    if ($amountInPaisa <= $amt) {
+// IMPORTANT: For Khalti sandbox testing, you need to use specific test amounts
+// Khalti sandbox only accepts these amounts: 1000, 5000, 10000, 50000 paisa
+// That's Rs. 10, Rs. 50, Rs. 100, or Rs. 500
+// For production, remove this limitation
+
+// For testing, we'll round to nearest test amount
+$testAmounts = [1000, 5000, 10000, 50000]; // in paisa
+$closestAmount = 1000; // default to Rs. 10
+
+foreach ($testAmounts as $amt) {
+    if (abs($amountInPaisa - $amt) < abs($amountInPaisa - $closestAmount)) {
         $closestAmount = $amt;
-        break;
     }
 }
+
+// For testing, use the test amount
+// Comment this line in production
 $amountInPaisa = $closestAmount;
-// --- END SANDBOX FIX ---
 
 // Order info
-$purchaseOrderId = "WOSA-" . uniqid();
-$purchaseOrderName = "Wosa Order";
+$purchaseOrderId = "WOSA-" . time() . "-" . rand(1000, 9999);
+$purchaseOrderName = "Wosa Fashion Order";
 
-// Save pending order
+// Save pending order in session
 $_SESSION['pending_order'] = [
     'purchase_order_id' => $purchaseOrderId,
     'full_name' => $full_name,
     'phone_no' => $phone_no,
     'address' => $address,
-    'total_amount' => $totalAmount
+    'total_amount' => $totalAmount,
+    'cart_items' => $_SESSION['cart']
 ];
 
-// UPDATE: ngrok public URL
-$ngrokUrl = "https://nationally-isolatable-dorthey.ngrok-free.dev/Wosa";
-$returnUrl  = $ngrokUrl . "/verify.php";
-$websiteUrl = $ngrokUrl;
+// Your website URLs - UPDATE THESE TO YOUR ACTUAL URLs
+// For localhost development with ngrok or local testing
+$baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+$projectPath = dirname($_SERVER['PHP_SELF']);
+$returnUrl  = $baseUrl . $projectPath . "/verify.php";
+$websiteUrl = $baseUrl . $projectPath;
 
-// Khalti initiate payload
+// Khalti initiate payment payload
 $data = [
     "return_url" => $returnUrl,
     "website_url" => $websiteUrl,
     "amount" => $amountInPaisa,
     "purchase_order_id" => $purchaseOrderId,
-    "purchase_order_name" => $purchaseOrderName
+    "purchase_order_name" => $purchaseOrderName,
+    "customer_info" => [
+        "name" => $full_name,
+        "email" => "customer@example.com", // Optional
+        "phone" => $phone_no
+    ]
 ];
 
+// Initialize cURL
 $ch = curl_init($KHALTI_GATEWAY_URL . "/api/v2/epayment/initiate/");
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
@@ -90,22 +105,56 @@ curl_setopt_array($ch, [
         "Authorization: Key $secretKey",
         "Content-Type: application/json"
     ],
-    CURLOPT_SSL_VERIFYPEER => false
+    CURLOPT_SSL_VERIFYPEER => true, // Set to true for production
+    CURLOPT_SSL_VERIFYHOST => 2,
+    CURLOPT_TIMEOUT => 30
 ]);
 
 $response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlError = curl_error($ch);
 curl_close($ch);
+
+// Debug information (remove in production)
+if ($httpCode !== 200) {
+    error_log("Khalti API Error - HTTP Code: $httpCode");
+    error_log("Khalti API Response: " . $response);
+    error_log("cURL Error: " . $curlError);
+}
 
 $responseData = json_decode($response, true);
 
-// Redirect
-if (isset($responseData['payment_url'])) {
+// Check if payment URL is received
+if (isset($responseData['payment_url']) && !empty($responseData['payment_url'])) {
+    // Redirect to Khalti payment page
     header("Location: " . $responseData['payment_url']);
     exit;
-}
-
-echo "<pre>Payment initiation failed\n";
-print_r($responseData);
-echo "</pre>";
-exit;
-?>
+} else {
+    // Payment initiation failed
+    $errorMessage = "Payment initiation failed. ";
+    
+    if (isset($responseData['error_key'])) {
+        $errorMessage .= "Error: " . $responseData['error_key'];
+    }
+    
+    if (isset($responseData['detail'])) {
+        $errorMessage .= " - " . $responseData['detail'];
+    }
+    
+    echo "<h2 style='color: red;'>$errorMessage</h2>";
+    echo "<h3>Response from Khalti:</h3>";
+    echo "<pre style='background: #f4f4f4; padding: 15px; border-radius: 5px;'>";
+    print_r($responseData);
+    echo "</pre>";
+    echo "<h3>Debug Information:</h3>";
+    echo "<pre style='background: #f4f4f4; padding: 15px; border-radius: 5px;'>";
+    echo "HTTP Code: $httpCode\n";
+    echo "Amount (paisa): $amountInPaisa\n";
+    echo "Amount (Rs): " . ($amountInPaisa / 100) . "\n";
+    echo "Purchase Order ID: $purchaseOrderId\n";
+    echo "Return URL: $returnUrl\n";
+    echo "Website URL: $websiteUrl\n";
+    echo "</pre>";
+    echo "<p><a href='mycart.php' style='display: inline-block; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 5px;'>Back to Cart</a></p>";
+    exit;
+}?>
