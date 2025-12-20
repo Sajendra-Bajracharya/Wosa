@@ -1,6 +1,12 @@
 <?php
 session_start();
 
+// Calculate cart count
+$cartCount = 0;
+if (isset($_SESSION['cart'])) {
+    $cartCount = count($_SESSION['cart']);
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -44,7 +50,7 @@ session_start();
             />
           </svg>
         </a>
-        <a href="mycart.php">
+        <a href="mycart.php" class="cart-icon-wrapper">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -57,6 +63,9 @@ session_start();
               clip-rule="evenodd"
             />
           </svg>
+          <?php if($cartCount > 0): ?>
+          <span class="cart-badge"><?php echo $cartCount; ?></span>
+          <?php endif; ?>
         </a>
       </div>
     </header>

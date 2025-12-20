@@ -10,24 +10,24 @@ if ($_SERVER["REQUEST_METHOD"]=="POST") {
         if (isset($_SESSION['cart'])) {
             $myitems=array_column($_SESSION['cart'], 'Item_Name');
             if (in_array($_POST['Item_Name'], $myitems)) {
-                echo"<script>
-          alert('Item already added');
-          window.location.href='$redirect_url';
-        </script>";
+                // Use URL parameter instead of alert
+                $redirect_url .= (strpos($redirect_url, '?') !== false ? '&' : '?') . 'cart_message=already_added';
+                header("Location: $redirect_url");
+                exit;
             } else {
                 $count=count($_SESSION['cart']);
                 $_SESSION['cart'][$count]=array('Item_Name'=>$_POST['Item_Name'],'Price'=>$_POST['Price'],'Quantity'=>1);
-                echo"<script>
-          alert('Item added');
-          window.location.href='$redirect_url';
-        </script>";
+                // Use URL parameter instead of alert
+                $redirect_url .= (strpos($redirect_url, '?') !== false ? '&' : '?') . 'cart_message=added';
+                header("Location: $redirect_url");
+                exit;
             }
         } else {
             $_SESSION['cart'][0]=array('Item_Name'=>$_POST['Item_Name'],'Price'=>$_POST['Price'],'Quantity'=>1);
-            echo"<script>
-        alert('Item added');
-        window.location.href='$redirect_url';
-      </script>";
+            // Use URL parameter instead of alert
+            $redirect_url .= (strpos($redirect_url, '?') !== false ? '&' : '?') . 'cart_message=added';
+            header("Location: $redirect_url");
+            exit;
         }
     }
     if (isset($_POST['Remove_Item'])) {
@@ -35,10 +35,9 @@ if ($_SERVER["REQUEST_METHOD"]=="POST") {
             if ($value['Item_Name']==$_POST['Item_Name']) {
                 unset($_SESSION['cart'][$key]);
                 $_SESSION['cart']=array_values($_SESSION['cart']);
-                echo"<script>
-          alert('Item Removed');
-          window.location.href='mycart.php';
-        </script>";
+                // Use URL parameter instead of alert
+                header("Location: mycart.php?cart_message=removed");
+                exit;
             }
         }
     }
@@ -46,9 +45,8 @@ if ($_SERVER["REQUEST_METHOD"]=="POST") {
         foreach ($_SESSION['cart'] as $key => $value) {
             if ($value['Item_Name']==$_POST['Item_Name']) {
                 $_SESSION['cart'][$key]['Quantity']=$_POST['Mod_Quantity'];
-                echo"<script>
-          window.location.href='mycart.php';
-        </script>";
+                header("Location: mycart.php");
+                exit;
             }
         }
     }

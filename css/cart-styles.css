@@ -57,6 +57,51 @@
   gap: 32px;
 }
 
+/* Cart icon wrapper for badge positioning */
+.cart-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Cart badge notification */
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #ff4444;
+  color: white;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  border: 2px solid #425e68;
+  animation: pulse 0.5s ease-in-out;
+}
+
+/* Pulse animation when badge appears/updates */
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Badge for numbers 10+ */
+.cart-badge:has-text {
+  min-width: 22px;
+  padding: 0 4px;
+  border-radius: 11px;
+}
+
 .icons,
 .icons:link,
 .icons:visited {
@@ -320,4 +365,62 @@ footer a:hover {
 
 footer .links a:hover {
   color: #a4c1cc;
+}
+
+/* Toast Notification Styles */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  background-color: #4caf50;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-out 2.7s forwards;
+  font-weight: 500;
+}
+
+.toast.error {
+  background-color: #f44336;
+}
+
+.toast.warning {
+  background-color: #ff9800;
+}
+
+.toast-icon {
+  font-size: 20px;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(400px);
+  }
 }
