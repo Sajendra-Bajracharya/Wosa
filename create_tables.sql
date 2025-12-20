@@ -24,3 +24,19 @@ CREATE TABLE IF NOT EXISTS `user_orders` (
   CONSTRAINT `user_orders_ibfk_1` FOREIGN KEY (`Order_Id`) REFERENCES `order_manager` (`Order_Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+DROP TABLE IF EXISTS user_manager;
+
+-- Create user_manager table with all signup fields
+CREATE TABLE user_manager (
+  id INT(11) NOT NULL AUTO_INCREMENT,
+  username VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  phone_number VARCHAR(20) NOT NULL,
+  address TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY unique_username (username),
+  UNIQUE KEY unique_email (email)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

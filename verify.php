@@ -1,5 +1,8 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 
 $secretKey = "68cc93e50fb540eb89ba1dfc27531ff0";
 $KHALTI_GATEWAY_URL = "https://a.khalti.com";

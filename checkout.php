@@ -1,5 +1,8 @@
-<?php 
-session_start();
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 
 // Khalti credentials
 $publicKey = "3b0b476539d44bd3ab515bd4709049ba";
