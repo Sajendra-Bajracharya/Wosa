@@ -1,15 +1,15 @@
-<?php
+<?php 
 session_start();
 
 // Khalti credentials
-$publicKey = "f4aeb62ff3424f0c9ce6b9e433660fd0";
-$secretKey = "651dfb44a54b463891292995be953d92";
+$publicKey = "3b0b476539d44bd3ab515bd4709049ba";
+$secretKey = "68cc93e50fb540eb89ba1dfc27531ff0";
 $KHALTI_GATEWAY_URL = "https://a.khalti.com";
 
-// DB connection
-$con = mysqli_connect("localhost", "root", "", "testing");
+// DB connection (port 3307)
+$con = mysqli_connect("localhost", "root", "", "testing", 3307);
 if (mysqli_connect_error()) {
-    die("Database connection failed");
+    die("Database connection failed: " . mysqli_connect_error());
 }
 
 // Cart check
@@ -42,7 +42,6 @@ $amountInPaisa = (int)($totalAmount * 100);
 // --- SANDBOX FIX: Khalti only allows specific test amounts ---
 $sandboxAmounts = [1000, 5000, 10000, 50000]; // Rs. 10, 50, 100, 500
 $closestAmount = 1000; // default
-
 foreach ($sandboxAmounts as $amt) {
     if ($amountInPaisa <= $amt) {
         $closestAmount = $amt;

@@ -1,13 +1,13 @@
 <?php
 session_start();
 
-$secretKey = "651dfb44a54b463891292995be953d92";
+$secretKey = "68cc93e50fb540eb89ba1dfc27531ff0";
 $KHALTI_GATEWAY_URL = "https://a.khalti.com";
 
-// DB connection
-$con = mysqli_connect("localhost", "root", "", "testing");
+// DB connection (port 3307)
+$con = mysqli_connect("localhost", "root", "", "testing", 3307);
 if (mysqli_connect_error()) {
-    die("Database connection failed");
+    die("Database connection failed: " . mysqli_connect_error());
 }
 
 // Get pidx
@@ -57,7 +57,7 @@ $stmt1 = mysqli_prepare(
 );
 
 $payMode = "Khalti";
-$paidAmount = $data['amount'] ?? 0; // amount in paisa
+$paidAmount = (int)($data['amount'] ?? 0); // amount in paisa
 
 mysqli_stmt_bind_param(
     $stmt1,
