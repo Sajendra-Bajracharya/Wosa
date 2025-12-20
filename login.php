@@ -3,14 +3,180 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 include('server.php');
+
+// Fetch user details
+$user_details = null;
+if (isset($_SESSION['user_id'])) {
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT * FROM user_manager WHERE id = '$user_id'";
+    $result = mysqli_query($db, $query);
+    if ($result) {
+        $user_details = mysqli_fetch_assoc($result);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Login - Registration System</title>
+  <title>Login - Wosa</title>
   <link rel="stylesheet" href="css/login.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <script src="https://kit.fontawesome.com/144a91ca19.js" crossorigin="anonymous"></script>
+  <style>
+    .welcome-section {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    
+    .welcome-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      color: white;
+      padding: 40px 30px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .welcome-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .welcome-header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .dashboard-card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-decoration: none;
+      color: #333;
+    }
+    
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .dashboard-card i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #3b82f6;
+    }
+    
+    .dashboard-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+    .dashboard-card p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+    
+    .user-info-section {
+      background: #f8f9fa;
+      padding: 30px;
+      border-radius: 15px;
+      margin: 30px 0;
+      text-align: left;
+    }
+    
+    .user-info-section h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+    
+    .info-item {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .info-item label {
+      font-weight: 600;
+      color: #3b82f6;
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+    
+    .info-item span {
+      color: #333;
+      font-size: 1.1rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    
+    .btn-action {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 25px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+      font-weight: 600;
+    }
+    
+    .btn-primary-action {
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      color: white;
+    }
+    
+    .btn-primary-action:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+    }
+    
+    .btn-secondary-action {
+      background: #fff;
+      color: #3b82f6;
+      border: 2px solid #3b82f6;
+    }
+    
+    .btn-secondary-action:hover {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-danger-action {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .btn-danger-action:hover {
+      background: #c0392b;
+    }
+  </style>
 </head>
 <body>
 
@@ -41,25 +207,66 @@ include('server.php');
   </header>
 
   <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true): ?>
-    <!-- ✅ LOGIN SUCCESS -->
-    <div class="img">
-      <h2>#WELCOME</h2>
-    </div>
-    
-    <div class="container" style="text-align:center; padding: 40px 20px;">
-      <h2>Login Successful 🎉</h2>
-      <p style="font-size: 18px; margin: 20px 0;">Welcome back, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>!</p>
-      
-      <div style="margin-top: 30px;">
-        <a href="index.html" style="text-decoration: none;">
-          <input type="button" value="Continue Shopping" style="margin: 10px; padding: 12px 30px; cursor: pointer;"/>
+    <!-- ✅ LOGGED IN - DASHBOARD -->
+    <div class="welcome-section">
+      <div class="welcome-header">
+        <h1>Welcome Back, <?php echo htmlspecialchars($_SESSION['username']); ?>! 👋</h1>
+        <p>Ready to continue your shopping journey?</p>
+      </div>
+
+      <!-- Dashboard Cards -->
+      <div class="dashboard-grid">
+        <a href="index.html" class="dashboard-card">
+          <i class="fas fa-shopping-bag"></i>
+          <h3>Continue Shopping</h3>
+          <p>Browse our latest collections</p>
         </a>
-        <a href="profile.php" style="text-decoration: none;">
-          <input type="button" value="My Profile" style="margin: 10px; padding: 12px 30px; cursor: pointer;"/>
+
+        <a href="mycart.php" class="dashboard-card">
+          <i class="fas fa-shopping-cart"></i>
+          <h3>My Cart</h3>
+          <p>View items in your cart</p>
         </a>
-        <br>
-        <a href="logout.php" style="text-decoration: none;">
-          <input type="button" value="Logout" style="margin: 10px; padding: 12px 30px; cursor: pointer; background: #e74c3c;"/>
+
+        <a href="my_orders.php" class="dashboard-card">
+          <i class="fas fa-box"></i>
+          <h3>My Orders</h3>
+          <p>Track your orders</p>
+        </a>
+      </div>
+
+      <!-- User Information -->
+      <?php if ($user_details): ?>
+      <div class="user-info-section">
+        <h2>Your Account Details</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Username</label>
+            <span><?php echo htmlspecialchars($user_details['username']); ?></span>
+          </div>
+          <div class="info-item">
+            <label>Email</label>
+            <span><?php echo htmlspecialchars($user_details['email']); ?></span>
+          </div>
+          <div class="info-item">
+            <label>Phone Number</label>
+            <span><?php echo htmlspecialchars($user_details['phone_number']); ?></span>
+          </div>
+          <div class="info-item">
+            <label>Address</label>
+            <span><?php echo htmlspecialchars($user_details['address']); ?></span>
+          </div>
+        </div>
+      </div>
+      <?php endif; ?>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <a href="index.html" class="btn-action btn-primary-action">
+          <i class="fas fa-store"></i> Shop Now
+        </a>
+        <a href="logout.php" class="btn-action btn-danger-action">
+          <i class="fas fa-sign-out-alt"></i> Logout
         </a>
       </div>
     </div>
@@ -88,6 +295,7 @@ include('server.php');
 
         <div class="pa">
           <p>Not yet a member? <a href="register.php">Sign up</a></p>
+          <p><a href="admin_login.php" style="color: #3b82f6;">Admin Login</a></p>
         </div>
       </form>
     </div>

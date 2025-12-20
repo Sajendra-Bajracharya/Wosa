@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-
 /* 🔐 LOGIN CHECK */
 if (!isset($_SESSION['user_id'])) {
     echo "<script>
@@ -14,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 /* DATABASE CONNECTION */
-$con = mysqli_connect("localhost", "root", "", "testing");
+$con = mysqli_connect("localhost", "root", "", "testing", 3307);
 
 if (!$con) {
     echo "<script>
@@ -28,12 +27,12 @@ if (!$con) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['purchase'])) {
 
     $user_id   = $_SESSION['user_id'];
-    $full_name = $_POST['full_name'];
-    $phone     = $_POST['phone_no'];
-    $address   = $_POST['address'];
-    $pay_mode  = $_POST['pay_mode'];
+    $full_name = mysqli_real_escape_string($con, $_POST['full_name']);
+    $phone     = mysqli_real_escape_string($con, $_POST['phone_no']);
+    $address   = mysqli_real_escape_string($con, $_POST['address']);
+    $pay_mode  = mysqli_real_escape_string($con, $_POST['pay_mode']);
 
-    /* INSERT INTO order_manager */
+    /* INSERT INTO order_manager - UPDATED WITH user_id */
     $query1 = "INSERT INTO order_manager 
                (user_id, Full_Name, Phone_No, Address, Pay_Mode)
                VALUES (?,?,?,?,?)";
@@ -75,11 +74,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['purchase'])) {
 
         echo "<script>
             alert('Order placed successfully!');
-            window.location.href='index.php';
+            window.location.href='my_orders.php';
         </script>";
     } else {
         echo "<script>
-            alert('Order failed');
+            alert('Order failed: " . mysqli_error($con) . "');
             window.location.href='mycart.php';
         </script>";
     }
