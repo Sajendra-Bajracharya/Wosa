@@ -74,8 +74,6 @@ $_SESSION['pending_order'] = [
     'cart_items' => $_SESSION['cart']
 ];
 
-// Your website URLs - UPDATE THESE TO YOUR ACTUAL URLs
-// For localhost development with ngrok or local testing
 $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
 $projectPath = dirname($_SERVER['PHP_SELF']);
 $returnUrl  = $baseUrl . $projectPath . "/verify.php";
@@ -90,7 +88,6 @@ $data = [
     "purchase_order_name" => $purchaseOrderName,
     "customer_info" => [
         "name" => $full_name,
-        "email" => "customer@example.com", // Optional
         "phone" => $phone_no
     ]
 ];

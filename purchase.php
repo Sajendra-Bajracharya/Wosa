@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-/* 🔐 LOGIN CHECK */
+/*  LOGIN CHECK */
 if (!isset($_SESSION['user_id'])) {
     echo "<script>
         alert('Please login to proceed with checkout');

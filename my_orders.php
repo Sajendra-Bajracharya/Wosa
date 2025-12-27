@@ -3,304 +3,519 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (!isset($_SESSION['logged_in']) || !isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('location: login.php');
     exit();
 }
 
 $db = mysqli_connect("localhost", "root", "", "testing", 3307);
-$user_id = $_SESSION['user_id'];
+if (mysqli_connect_error()) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
 
-// Get user's orders - Fixed query to properly match user_id
-$orders_query = "SELECT om.*, 
-                 GROUP_CONCAT(CONCAT(uo.Item_Name, ' (x', uo.Quantity, ')') SEPARATOR ', ') as items,
-                 SUM(uo.Price * uo.Quantity) as total_amount
-                 FROM order_manager om
-                 LEFT JOIN user_orders uo ON om.Order_Id = uo.Order_Id
-                 WHERE om.user_id = $user_id
-                 GROUP BY om.Order_Id
-                 ORDER BY om.Order_Date DESC";
-$orders_result = mysqli_query($db, $orders_query);
+$user_id = $_SESSION['user_id'];
+$user_name = $_SESSION['username'];
+
+// Get user's full name from user_manager table
+$user_query = "SELECT username, phone_number FROM user_manager WHERE id = ?";
+$stmt = mysqli_prepare($db, $user_query);
+mysqli_stmt_bind_param($stmt, "i", $user_id);
+mysqli_stmt_execute($stmt);
+$user_result = mysqli_stmt_get_result($stmt);
+$user_data = mysqli_fetch_assoc($user_result);
+$user_full_name = $user_data['username'] ?? '';
+$user_phone = $user_data['phone_number'] ?? '';
+
+// Get all orders for this user (matching by name OR phone number for better matching)
+// This way orders will show up even if entered with slight variations
+$orders_query = "SELECT * FROM order_manager 
+                 WHERE Full_Name LIKE ? OR Phone_No = ?
+                 ORDER BY Order_Date DESC";
+$stmt = mysqli_prepare($db, $orders_query);
+$name_pattern = "%{$user_full_name}%";
+mysqli_stmt_bind_param($stmt, "ss", $name_pattern, $user_phone);
+mysqli_stmt_execute($stmt);
+$orders_result = mysqli_stmt_get_result($stmt);
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - Wosa</title>
-    <link rel="stylesheet" href="css/login.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <script src="https://kit.fontawesome.com/144a91ca19.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/style.css" />
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+
         .orders-container {
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 100px auto 50px;
             padding: 20px;
         }
-        
+
         .page-header {
-            text-align: center;
-            margin-bottom: 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
         }
-        
+
         .page-header h1 {
-            font-size: 2.5rem;
             color: #2c3e50;
             margin-bottom: 10px;
         }
-        
+
+        .page-header p {
+            color: #7f8c8d;
+        }
+
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .order-card {
             background: white;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s;
         }
-        
+
         .order-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
-        
+
         .order-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #ecf0f1;
-            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-        
+
         .order-id {
             font-size: 1.3rem;
-            font-weight: bold;
-            color: #3b82f6;
+            font-weight: 600;
         }
-        
+
         .order-date {
-            color: #7f8c8d;
+            opacity: 0.9;
+            font-size: 0.9rem;
         }
-        
-        .order-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-        
-        .detail-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 5px;
-        }
-        
-        .detail-label {
+
+        .order-status {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
             font-size: 0.85rem;
+            text-transform: capitalize;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-shipped {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .order-body {
+            padding: 30px;
+        }
+
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
             color: #7f8c8d;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .order-items {
+            margin-top: 20px;
+        }
+
+        .order-items h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .item-row:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #2c3e50;
             margin-bottom: 5px;
         }
-        
-        .detail-value {
+
+        .item-quantity {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .order-total {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .total-label {
+            font-size: 1.1rem;
             font-weight: 600;
-            color: #2c3e50;
         }
-        
-        .order-items {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
+
+        .total-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
         }
-        
-        .order-items h4 {
-            margin-bottom: 10px;
-            color: #2c3e50;
-        }
-        
-        .payment-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-        
-        .payment-cod {
-            background: #fef5e7;
-            color: #f39c12;
-        }
-        
-        .payment-khalti {
-            background: #dbeafe;
-            color: #3b82f6;
-        }
-        
-        .no-orders {
+
+        .empty-state {
+            background: white;
+            border-radius: 15px;
+            padding: 60px 30px;
             text-align: center;
-            padding: 60px 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        
-        .no-orders i {
+
+        .empty-state i {
             font-size: 5rem;
             color: #bdc3c7;
             margin-bottom: 20px;
         }
-        
-        .no-orders h2 {
-            color: #7f8c8d;
+
+        .empty-state h2 {
+            color: #2c3e50;
             margin-bottom: 15px;
         }
-        
-        .btn-shop {
+
+        .empty-state p {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .btn {
             display: inline-block;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             text-decoration: none;
-            border-radius: 25px;
-            margin-top: 20px;
-            transition: transform 0.3s;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
         }
-        
-        .btn-shop:hover {
-            transform: scale(1.05);
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
-        
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            background: #f8f9fa;
-            color: #2c3e50;
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            box-shadow: 0 10px 25px rgba(149, 165, 166, 0.4);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #667eea;
             text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s;
         }
-        
-        .back-btn:hover {
-            background: #e9ecef;
+
+        .back-link:hover {
+            transform: translateX(-5px);
+            color: #764ba2;
+        }
+
+        .track-order-btn {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .track-order-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .orders-container {
+                margin: 80px auto 30px;
+                padding: 15px;
+            }
+
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .order-info {
+                grid-template-columns: 1fr;
+            }
+
+            .item-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .order-total {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-    <header class="nav-section">
-        <div class="logo-container">
-            <img class="logo" src="images/logo.png" alt="Logo" />
-        </div>
-        <div class="main-nav-links">
-            <ul class="main-nav-list">
-                <li><a class="main-nav-link" href="index.html">Home</a></li>
-                <li><a class="main-nav-link" href="aboutus.html">About</a></li>
-                <li><a class="main-nav-link" href="contact.html">Contact</a></li>
-            </ul>
-        </div>
-        <div class="nav-icon">
-            <a href="login.php">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 icons">
-                    <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd"/>
-                </svg>
-            </a>
-            <a href="mycart.php">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 icons">
-                    <path fill-rule="evenodd" d="M7.5 6v.75H5.513c-.96 0-1.764.724-1.865 1.679l-1.263 12A1.875 1.875 0 004.25 22.5h15.5a1.875 1.875 0 001.865-2.071l-1.263-12a1.875 1.875 0 00-1.865-1.679H16.5V6a4.5 4.5 0 10-9 0zM12 3a3 3 0 00-3 3v.75h6V6a3 3 0 00-3-3zm-3 8.25a3 3 0 106 0v-.75a.75.75 0 011.5 0v.75a4.5 4.5 0 11-9 0v-.75a.75.75 0 011.5 0v.75z" clip-rule="evenodd"/>
-                </svg>
-            </a>
-        </div>
-    </header>
+    <?php include("header.php"); ?>
 
     <div class="orders-container">
-        <a href="login.php" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        <a href="index.php" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
         </a>
-        
+
         <div class="page-header">
-            <h1><i class="fas fa-box"></i> My Orders</h1>
-            <p>Track and view your order history</p>
+            <h1><i class="fas fa-shopping-bag"></i> My Orders</h1>
+            <p>Welcome back, <strong><?php echo htmlspecialchars($user_name); ?></strong>! Here are all your orders.</p>
         </div>
 
-        <?php if ($orders_result && mysqli_num_rows($orders_result) > 0): ?>
-            <?php while($order = mysqli_fetch_assoc($orders_result)): ?>
-                <div class="order-card">
-                    <div class="order-header">
-                        <div>
-                            <div class="order-id">Order #<?php echo $order['Order_Id']; ?></div>
-                            <div class="order-date">
-                                <i class="fas fa-calendar"></i> 
-                                <?php echo date('F d, Y - h:i A', strtotime($order['Order_Date'])); ?>
+        <?php if (mysqli_num_rows($orders_result) > 0): ?>
+            <div class="orders-list">
+                <?php while($order = mysqli_fetch_assoc($orders_result)): ?>
+                    <?php
+                    // Get order items
+                    $order_id = $order['Order_Id'];
+                    $items_query = "SELECT * FROM user_orders WHERE Order_Id = ?";
+                    $stmt_items = mysqli_prepare($db, $items_query);
+                    mysqli_stmt_bind_param($stmt_items, "i", $order_id);
+                    mysqli_stmt_execute($stmt_items);
+                    $items_result = mysqli_stmt_get_result($stmt_items);
+                    
+                    // Determine status class
+                    $status = $order['order_status'] ?? 'pending';
+                    $status_class = 'status-' . $status;
+                    ?>
+                    
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <div class="order-id">Order #<?php echo $order['Order_Id']; ?></div>
+                                <div class="order-date">
+                                    <i class="far fa-calendar"></i>
+                                    <?php echo date('F d, Y • g:i A', strtotime($order['Order_Date'])); ?>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <span class="order-status <?php echo $status_class; ?>">
+                                    <?php echo ucfirst($status); ?>
+                                </span>
                             </div>
                         </div>
-                        <div>
-                            <span class="payment-badge <?php echo strtolower($order['Pay_Mode']) == 'cod' ? 'payment-cod' : 'payment-khalti'; ?>">
-                                <i class="fas fa-money-bill-wave"></i> <?php echo $order['Pay_Mode']; ?>
-                            </span>
-                        </div>
-                    </div>
 
-                    <div class="order-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Customer Name</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($order['Full_Name']); ?></div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Phone Number</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($order['Phone_No']); ?></div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Delivery Address</div>
-                            <div class="detail-value"><?php echo htmlspecialchars($order['Address']); ?></div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Total Amount</div>
-                            <div class="detail-value" style="color: #27ae60; font-size: 1.2rem;">
-                                Rs. <?php echo number_format($order['total_amount']); ?>
+                        <div class="order-body">
+                            <div class="order-info">
+                                <div class="info-item">
+                                    <span class="info-label">
+                                        <i class="fas fa-user"></i> Customer Name
+                                    </span>
+                                    <span class="info-value"><?php echo htmlspecialchars($order['Full_Name']); ?></span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">
+                                        <i class="fas fa-phone"></i> Phone Number
+                                    </span>
+                                    <span class="info-value"><?php echo htmlspecialchars($order['Phone_No']); ?></span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">
+                                        <i class="fas fa-map-marker-alt"></i> Delivery Address
+                                    </span>
+                                    <span class="info-value"><?php echo htmlspecialchars($order['Address']); ?></span>
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">
+                                        <i class="fas fa-credit-card"></i> Payment Method
+                                    </span>
+                                    <span class="info-value"><?php echo htmlspecialchars($order['Pay_Mode']); ?></span>
+                                </div>
+                            </div>
+
+                            <div class="order-items">
+                                <h3><i class="fas fa-box"></i> Order Items</h3>
+                                <div class="item-list">
+                                    <?php 
+                                    $total = 0;
+                                    while($item = mysqli_fetch_assoc($items_result)): 
+                                        $item_total = $item['Price'] * $item['Quantity'];
+                                        $total += $item_total;
+                                    ?>
+                                        <div class="item-row">
+                                            <div class="item-details">
+                                                <div class="item-name"><?php echo htmlspecialchars($item['Item_Name']); ?></div>
+                                                <div class="item-quantity">
+                                                    Quantity: <?php echo $item['Quantity']; ?> × Rs. <?php echo number_format($item['Price'], 2); ?>
+                                                </div>
+                                            </div>
+                                            <div class="item-price">
+                                                Rs. <?php echo number_format($item_total, 2); ?>
+                                            </div>
+                                        </div>
+                                    <?php endwhile; ?>
+                                </div>
+                            </div>
+
+                            <div class="order-total">
+                                <span class="total-label">
+                                    <i class="fas fa-receipt"></i> Total Amount Paid:
+                                </span>
+                                <span class="total-amount">Rs. <?php echo number_format($order['Paid_Amount'] / 100, 2); ?></span>
                             </div>
                         </div>
                     </div>
-
-                    <?php if ($order['items']): ?>
-                    <div class="order-items">
-                        <h4><i class="fas fa-shopping-bag"></i> Items Ordered</h4>
-                        <p><?php echo htmlspecialchars($order['items']); ?></p>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            <?php endwhile; ?>
+                <?php endwhile; ?>
+            </div>
         <?php else: ?>
-            <div class="no-orders">
-                <i class="fas fa-box-open"></i>
+            <div class="empty-state">
+                <i class="fas fa-shopping-basket"></i>
                 <h2>No Orders Yet</h2>
-                <p>You haven't placed any orders yet. Start shopping now!</p>
-                <a href="index.html" class="btn-shop">
-                    <i class="fas fa-shopping-bag"></i> Start Shopping
+                <p>You haven't placed any orders yet. Start shopping to see your orders here!</p>
+                <a href="index.php" class="btn">
+                    <i class="fas fa-shopping-cart"></i> Start Shopping
                 </a>
+                <br><br>
+                <p style="font-size: 0.9rem; color: #95a5a6;">
+                    Orders are matched by your account name: <strong><?php echo htmlspecialchars($user_full_name); ?></strong>
+                </p>
             </div>
         <?php endif; ?>
     </div>
 
-    <footer class="footer">
-        <div class="col">
-            <h4>Contact</h4>
-            <p><strong>Address: </strong> Dubarmarg, Kathmandu</p>
-            <p><strong>Phone:</strong> +977 98XXXXXXXX</p>
-            <p><strong>Hours:</strong> 10:00 - 19:00, Sun - Fri</p>
-        </div>
-        <div class="col links">
-            <h4>About</h4>
-            <a href="aboutus.html">About Us</a>
-            <a href="contact.html">Contact Us</a>
-        </div>
-        <div class="col links">
-            <h4>My Accounts</h4>
-            <a href="login.php">Sign In</a>
-            <a href="mycart.php">View Cart</a>
-        </div>
-        <div class="col payment-partners">
-            <h4>Payment Partners</h4>
-            <p>Secured Payment Gateways</p>
-            <div>
-                <img src="images/esewa.png" alt="eSewa" />
-                <img src="images/khalti.png" alt="Khalti" />
-            </div>
-        </div>
-    </footer>
+    <script>
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

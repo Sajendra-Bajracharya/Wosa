@@ -10,14 +10,13 @@ $phone    = "";
 $address  = "";
 $errors = array(); 
 
-// connect to the database (PORT: 3307)
 $db = mysqli_connect("localhost", "root", "", "testing", 3307);
 
 if (!$db) {
     die("Database connection failed: " . mysqli_connect_error());
 }
 
-/* ===================== REGISTER USER ===================== */
+//REGISTER USER 
 if (isset($_POST['reg_user'])) {
 
   $username = mysqli_real_escape_string($db, $_POST['username']);
@@ -50,10 +49,8 @@ if (isset($_POST['reg_user'])) {
   }
 
   if (count($errors) == 0) {
-    // ✅ IMPROVED: Use password_hash instead of md5 (more secure)
     $password = password_hash($password_1, PASSWORD_DEFAULT);
 
-    // ✅ FIXED: Changed 'number' to 'phone_number'
     $query = "INSERT INTO user_manager (username, email, password, phone_number, address)
               VALUES ('$username', '$email', '$password', '$phone_number', '$address')";
     
@@ -70,7 +67,7 @@ if (isset($_POST['reg_user'])) {
   }
 }
 
-/* ===================== LOGIN USER ===================== */
+// LOGIN USER
 if (isset($_POST['login_user'])) {
 
   $username = mysqli_real_escape_string($db, $_POST['username']);
@@ -80,14 +77,14 @@ if (isset($_POST['login_user'])) {
   if (empty($password)) array_push($errors, "Password is required");
 
   if (count($errors) == 0) {
-    // ✅ Get user data first
+
     $query = "SELECT * FROM user_manager WHERE username='$username' LIMIT 1";
     $results = mysqli_query($db, $query);
 
     if (mysqli_num_rows($results) == 1) {
       $row = mysqli_fetch_assoc($results);
 
-      // ✅ IMPROVED: Use password_verify for hashed passwords
+
       if (password_verify($password, $row['password'])) {
         $_SESSION['user_id'] = $row['id'];
         $_SESSION['username'] = $row['username'];

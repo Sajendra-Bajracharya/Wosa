@@ -137,7 +137,7 @@ if (isset($_POST['admin_login'])) {
     if (mysqli_num_rows($table_exists) == 0):
     ?>
         <div class="setup-notice">
-            <h3>⚠️ Admin Setup Required</h3>
+            <h3> Admin Setup Required</h3>
             <p>Admin table not found. Please run the setup script first.</p>
             <a href="create_admin.php">Run Admin Setup</a>
         </div>
@@ -167,7 +167,7 @@ if (isset($_POST['admin_login'])) {
 
             <div class="pa">
                 <p><a href="login.php">← Back to User Login</a></p>
-                <p style="font-size: 0.9rem; color: #7f8c8d;">Default: admin / admin123</p>
+                <p style="font-size: 0.9rem; color: #7f8c8d;">...</p>
             </div>
         </form>
     </div>
